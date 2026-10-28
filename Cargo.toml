@@ -1,0 +1,15 @@
+[package]
+name = "horizon-smarterf3"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+license = "MIT"
+description = "SmarterF3: a tidier, configurable F3 debug screen for Horizon, as a native mod"
+publish = false
+
+[lib]
+# This exact source is also injected as `crate::game::smarterf3` by horizon-mixins.
+path = "mixins/smarterf3/runtime.rs"
+
+[dependencies]
+serde_json = "1"
