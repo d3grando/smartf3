@@ -1,5 +1,5 @@
 [mod]
-id = "smarterf3"
+id = "smartf3"
 version = "0.1.0"
 # No other mod we know of hooks the debug screen; same-site HEAD hooks would
 # run by priority, highest first, and the first that cancels skips the rest.
@@ -16,22 +16,22 @@ horizon_revision = "142388e1c136e622652ec7505af15d8ad195e041"
 [[module]]
 id = "runtime"
 file = "crates/horizon-client/src/game.rs"
-name = "smarterf3"
+name = "smartf3"
 source = "runtime.rs"
 
 [[module]]
 id = "native"
 file = "crates/horizon-client/src/game.rs"
-name = "smarterf3_native"
+name = "smartf3_native"
 source = "native.rs"
 
-# Pinned: SmarterF3's screen replaces the vanilla debug screen. There is no
+# Pinned: SmartF3's screen replaces the vanilla debug screen. There is no
 # hook point for it: native_hud is drawn under menus, chat and toasts, not under
 # F1 with a menu open, and cannot keep the vanilla text from being drawn too.
 # `debug_keys::Game::draw_debug_overlay` itself can't be hooked (its body has
 # macros, which horizon-mixins refuses: E_UNSUPPORTED_MACRO), so the hook is on
 # its macro-free caller `Game::hud`, which, while F3 is open, is run with
-# SmarterF3's screen in its place (native.rs `smarterf3_hud`).
+# SmartF3's screen in its place (native.rs `smartf3_hud`).
 [[injection]]
 id = "hud"
 kind = "HEAD"
@@ -43,7 +43,7 @@ bindings = [
   { name = "size", ty = "[u32;2]", value = "size" },
 ]
 
-# Hook point: `/smarterf3`.
+# Hook point: `/smartf3`.
 [[injection]]
 id = "command"
 kind = "HEAD"

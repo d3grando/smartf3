@@ -4,20 +4,20 @@
 // only compile inside Horizon. runtime.rs, the library, is tested in itself.
 
 #[cfg(any())]
-#[path = "../mixins/smarterf3/click.rs"]
+#[path = "../mixins/smartf3/click.rs"]
 mod hook_click;
 #[cfg(any())]
-#[path = "../mixins/smarterf3/command.rs"]
+#[path = "../mixins/smartf3/command.rs"]
 mod hook_command;
 #[cfg(any())]
-#[path = "../mixins/smarterf3/hud.rs"]
+#[path = "../mixins/smartf3/hud.rs"]
 mod hook_hud;
 #[cfg(any())]
-#[path = "../mixins/smarterf3/list.rs"]
+#[path = "../mixins/smartf3/list.rs"]
 mod hook_list;
 #[cfg(any())]
-#[path = "../mixins/smarterf3/settings.rs"]
+#[path = "../mixins/smartf3/settings.rs"]
 mod hook_settings;
 #[cfg(any())]
-#[path = "../mixins/smarterf3/native.rs"]
-mod smarterf3_native;
+#[path = "../mixins/smartf3/native.rs"]
+mod smartf3_native;

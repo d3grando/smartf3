@@ -1,10 +1,10 @@
-// SmarterF3's adapter to the game (Horizon 142388e1c136e622652ec7505af15d8ad195e041,
-// see horizon-mixin.toml). Injected as `crate::game::smarterf3_native`: reads
+// SmartF3's adapter to the game (Horizon 142388e1c136e622652ec7505af15d8ad195e041,
+// see horizon-mixin.toml). Injected as `crate::game::smartf3_native`: reads
 // what the debug screen shows from the game into a `Snapshot`, lets the
-// game-independent `crate::game::smarterf3` (runtime.rs) arrange it, and draws
+// game-independent `crate::game::smartf3` (runtime.rs) arrange it, and draws
 // the result where and as the vanilla screen is drawn. Only the window's game
 // draws, so nothing here runs on a server thread.
-use super::smarterf3::{self as sf, Config, Effect, Loaded, ModuleId, Snapshot};
+use super::smartf3::{self as sf, Config, Effect, Loaded, ModuleId, Snapshot};
 use super::{Game, Screen};
 use horizon_client::{
     blocks::Fluid,
@@ -44,7 +44,7 @@ fn read_config(game: &Game<'_>) -> Loaded {
 fn apply(loaded: Loaded) {
     if let Err(error) = &loaded {
         eprintln!(
-            "SmarterF3: {}: {error}; F3 shows the vanilla screen until it is fixed",
+            "SmartF3: {}: {error}; F3 shows the vanilla screen until it is fixed",
             sf::CONFIG_FILE
         );
     }
@@ -66,7 +66,7 @@ fn config(game: &Game<'_>) -> Config {
         ..Config::default()
     })
 }
-/// The window's game, and SmarterF3 not turned off in Options > Mods (then
+/// The window's game, and SmartF3 not turned off in Options > Mods (then
 /// every hook but the row and its page passes through untouched).
 fn on(game: &Game<'_>) -> bool {
     game.native_window() && game.native_on(sf::ID)
@@ -94,7 +94,7 @@ fn memory() -> Option<u64> {
         m.busy = true;
         m.asked = Some(Instant::now());
         let spawned = std::thread::Builder::new()
-            .name("SmarterF3 memory".into())
+            .name("SmartF3 memory".into())
             .spawn(|| {
                 let bytes = resident_bytes();
                 let mut m = MEMORY.lock().unwrap_or_else(PoisonError::into_inner);
@@ -126,13 +126,13 @@ fn resident_bytes() -> Option<u64> {
 }
 
 impl Game<'_> {
-    /// `Game::hud`'s HEAD, while F3 is open and SmarterF3 draws it: the
-    /// game's own `hud` with SmarterF3's screen where `draw_debug_overlay`
+    /// `Game::hud`'s HEAD, while F3 is open and SmartF3 draws it: the
+    /// game's own `hud` with SmartF3's screen where `draw_debug_overlay`
     /// draws the vanilla one (after the screen and the toasts, before
     /// Horizon's frame graph and the controller cursor). None runs the
-    /// game's `hud` (F3 closed, SmarterF3 off in Options > Mods, set to
+    /// game's `hud` (F3 closed, SmartF3 off in Options > Mods, set to
     /// vanilla F3, or its file broken).
-    pub(super) fn smarterf3_hud(&mut self, size: [u32; 2]) -> Option<HudBatch> {
+    pub(super) fn smartf3_hud(&mut self, size: [u32; 2]) -> Option<HudBatch> {
         if !self.debug || !on(self) || !config(self).enabled {
             return None;
         }
@@ -146,17 +146,17 @@ impl Game<'_> {
         self.draw_dialog(&mut batch);
         self.draw_pack_prompt(&mut batch);
         self.draw_link_prompt(&mut batch);
-        self.smarterf3_draw(&mut batch, size);
+        self.smartf3_draw(&mut batch, size);
         self.frame_graph
             .draw(self.settings.horizon.overlay, &mut batch, &self.gui.atlas);
         self.draw_pad_cursor(&mut batch);
         Some(batch)
     }
 
-    /// SmarterF3's screen in place of `draw_debug_overlay`'s: on the same
+    /// SmartF3's screen in place of `draw_debug_overlay`'s: on the same
     /// conditions (F3 open, not hidden by F1 unless a screen is open), at
     /// the same scale, with the same charts.
-    fn smarterf3_draw(&self, batch: &mut HudBatch, size: [u32; 2]) {
+    fn smartf3_draw(&self, batch: &mut HudBatch, size: [u32; 2]) {
         let config = config(self);
         let screen_open = self.title.is_some() || self.screen != Screen::Playing;
         if !self.debug || (self.ui.hide_gui && !screen_open) {
@@ -171,7 +171,7 @@ impl Game<'_> {
             self.settings.force_unicode,
             [batch.width as i32, batch.height as i32],
         );
-        let snapshot = self.smarterf3_snapshot(&config, framebuffer);
+        let snapshot = self.smartf3_snapshot(&config, framebuffer);
         let atlas = &self.gui.atlas;
         let columns = sf::columns(&config, &snapshot);
         let placed = sf::layout(&columns, width, |t| atlas.font.width(t) as i32);
@@ -228,7 +228,7 @@ impl Game<'_> {
     }
 
     /// What the shown modules need, read as the vanilla screen reads it.
-    fn smarterf3_snapshot(&self, config: &Config, framebuffer: [i32; 2]) -> Snapshot {
+    fn smartf3_snapshot(&self, config: &Config, framebuffer: [i32; 2]) -> Snapshot {
         let wants = |m: ModuleId| config.wants(m);
         let mut s = Snapshot {
             // `LocalPlayer.isReducedDebugInfo`: the server's rule or the option.
@@ -239,16 +239,16 @@ impl Game<'_> {
             ..Snapshot::default()
         };
         if wants(ModuleId::Fps) {
-            s.fps = Some(self.smarterf3_fps());
+            s.fps = Some(self.smartf3_fps());
         }
         if wants(ModuleId::Server) {
-            s.server = self.smarterf3_server();
+            s.server = self.smartf3_server();
         }
         if wants(ModuleId::System) {
-            s.system = self.smarterf3_system(framebuffer);
+            s.system = self.smartf3_system(framebuffer);
         }
         if wants(ModuleId::Rendering) {
-            s.rendering = self.smarterf3_rendering();
+            s.rendering = self.smartf3_rendering();
         }
         if wants(ModuleId::Charts) {
             s.charts = self.debug_chart_lines().to_vec();
@@ -288,20 +288,20 @@ impl Game<'_> {
             if wants(ModuleId::TargetBlock) {
                 s.target_block = self
                     .clip_ray(eye, dir, 20.0)
-                    .map(|hit| self.smarterf3_block(hit.pos));
+                    .map(|hit| self.smartf3_block(hit.pos));
             }
             if wants(ModuleId::TargetFluid) {
-                s.target_fluid = self.smarterf3_fluid(eye, dir, 20.0);
+                s.target_fluid = self.smartf3_fluid(eye, dir, 20.0);
             }
         }
         if wants(ModuleId::TargetEntity) {
-            s.target_entity = self.smarterf3_entity();
+            s.target_entity = self.smartf3_entity();
         }
         s
     }
 
     /// `DebugEntryFps`, as `draw_debug_overlay` reads it.
-    fn smarterf3_fps(&self) -> sf::Fps {
+    fn smartf3_fps(&self) -> sf::Fps {
         let limit = self.framerate_limit();
         let present = self
             .renderer
@@ -330,7 +330,7 @@ impl Game<'_> {
     }
 
     /// `DebugEntryTps`, as `draw_debug_overlay` reads it: in a world only.
-    fn smarterf3_server(&self) -> Option<sf::Server> {
+    fn smartf3_server(&self) -> Option<sf::Server> {
         self.player.as_ref()?;
         let [tx, rx] = self.debug_charts.packet_rates.map(|n| n.round() as i64);
         let (target, status) = if self.clock.sprinting() {
@@ -367,7 +367,7 @@ impl Game<'_> {
     }
 
     /// `system_specs` and the memory, as `draw_debug_overlay` reads them.
-    fn smarterf3_system(&self, framebuffer: [i32; 2]) -> sf::System {
+    fn smartf3_system(&self, framebuffer: [i32; 2]) -> sf::System {
         let mut system = sf::System {
             memory: memory(),
             ..sf::System::default()
@@ -421,7 +421,7 @@ impl Game<'_> {
 
     /// `simple_performance_impactors` and the shader pack's passes, as
     /// `draw_debug_overlay` writes them.
-    fn smarterf3_rendering(&self) -> Vec<String> {
+    fn smartf3_rendering(&self) -> Vec<String> {
         let s = &self.settings;
         let mut lines = vec![
             format!(
@@ -455,7 +455,7 @@ impl Game<'_> {
     }
 
     /// The block at `pos`: its id and its state's properties.
-    fn smarterf3_block(&self, pos: [i32; 3]) -> sf::TargetBlock {
+    fn smartf3_block(&self, pos: [i32; 3]) -> sf::TargetBlock {
         let state = self.world.block(pos[0], pos[1], pos[2]);
         let name = self.res.facts().get(state).name.to_string();
         let properties: Vec<(String, String)> = self
@@ -479,7 +479,7 @@ impl Game<'_> {
 
     /// The first fluid (source or flowing, waterlogged blocks too) along the
     /// view within `reach` blocks, before any other block.
-    fn smarterf3_fluid(&self, eye: [f64; 3], dir: [f64; 3], reach: f64) -> Option<sf::TargetFluid> {
+    fn smartf3_fluid(&self, eye: [f64; 3], dir: [f64; 3], reach: f64) -> Option<sf::TargetFluid> {
         let facts = self.res.facts();
         let mut last: Option<[i32; 3]> = None;
         let mut t = 0.0;
@@ -509,7 +509,7 @@ impl Game<'_> {
 
     /// The type of the entity under the crosshair before any block, as the
     /// game's own hit tests find it (`Minecraft.crosshairPickEntity`).
-    fn smarterf3_entity(&self) -> Option<String> {
+    fn smartf3_entity(&self) -> Option<String> {
         let mut best: Option<(f64, String)> = None;
         let mut offer = |distance: f64, kind: String| {
             if best.as_ref().is_none_or(|b| distance < b.0) {
@@ -544,9 +544,9 @@ impl Game<'_> {
         self.before_block(distance).then_some(kind)
     }
 
-    /// `native_command` (a hook point): `/smarterf3 [status|on|off|toggle|
+    /// `native_command` (a hook point): `/smartf3 [status|on|off|toggle|
     /// compact|reload]`, typed in the window's chat; true when it was ours.
-    pub(super) fn smarterf3_command(&mut self, command: &str) -> bool {
+    pub(super) fn smartf3_command(&mut self, command: &str) -> bool {
         if !on(self) {
             return false;
         }
@@ -588,7 +588,7 @@ impl Game<'_> {
     }
 
     /// `native_settings` (a hook point): the settings page's buttons.
-    pub(super) fn smarterf3_settings(&self) -> Vec<String> {
+    pub(super) fn smartf3_settings(&self) -> Vec<String> {
         let selected = shared(|s| s.selected);
         sf::labels(&loaded(self), selected)
     }
@@ -596,7 +596,7 @@ impl Game<'_> {
     /// `native_settings_click` (a hook point): change the setting, write
     /// `config.json` and put it in effect at once (or read the file again,
     /// or show another module's buttons).
-    pub(super) fn smarterf3_settings_click(&mut self, button: usize) {
+    pub(super) fn smartf3_settings_click(&mut self, button: usize) {
         let selected = shared(|s| s.selected);
         match sf::click(&loaded(self), selected, button) {
             Some(Effect::Save(config)) => {

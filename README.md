@@ -1,4 +1,4 @@
-# SmarterF3
+# SmartF3
 
 A **native** [Horizon](https://github.com/horizon-rust/horizon) mod (a horizon-mixins source bundle, `.hnmod`): a
 tidier, configurable F3 debug screen. The same information as the vanilla screen, grouped into **modules**
@@ -9,7 +9,7 @@ you choose. Optional text shadow and background, a compact layout, and the vanil
 Inspired by BetterF3 (https://modrinth.com/mod/betterf3); not affiliated, no code from it.
 
 > **Native mods are not sandboxed.** A native mod is Rust source compiled into your own Horizon game, and runs with
-> your rights. Read the source (`mixins/smarterf3/`) before you build it.
+> your rights. Read the source (`mixins/smartf3/`) before you build it.
 
 ## What it shows
 
@@ -47,13 +47,13 @@ benchmark does.
 
 ## Settings
 
-**Options > Mods** lists SmarterF3 with its **Settings** button. The row's own button turns the mod off (it then does
+**Options > Mods** lists SmartF3 with its **Settings** button. The row's own button turns the mod off (it then does
 nothing at all and F3 shows the vanilla screen; the launcher's next build leaves it out) and on again. Each click on
 the settings page moves a setting to its next value; it is saved and applies at once.
 
 | Button | Does |
 | --- | --- |
-| Debug screen: SmarterF3 / vanilla F3 | **The vanilla toggle**: vanilla F3 is one click (or `/smarterf3 off`) away |
+| Debug screen: SmartF3 / vanilla F3 | **The vanilla toggle**: vanilla F3 is one click (or `/smartf3 off`) away |
 | Layout: full / compact | Compact: one short line per module, no chart keys, no rendering lines |
 | Text shadow: ON / OFF | |
 | Background: grey (vanilla) / dark / none | The box behind each line |
@@ -71,16 +71,16 @@ the settings page moves a setting to its next value; it is saved and applies at 
 
 | Command | Does |
 | --- | --- |
-| `/smarterf3` or `/smarterf3 status` | Says which screen F3 shows |
-| `/smarterf3 on` / `off` (or `vanilla`) / `toggle` | SmarterF3's screen / the vanilla one |
-| `/smarterf3 compact` | Switches between the full and compact layouts |
-| `/smarterf3 reload` | Reads `config.json` again |
+| `/smartf3` or `/smartf3 status` | Says which screen F3 shows |
+| `/smartf3 on` / `off` (or `vanilla`) / `toggle` | SmartF3's screen / the vanilla one |
+| `/smartf3 compact` | Switches between the full and compact layouts |
+| `/smartf3 reload` | Reads `config.json` again |
 
 It is a client command: it runs in your window, in single player and on servers alike, and never reaches the server.
 
 ## Configuration file
 
-The settings page writes, and the mod reads, `horizon-mods/.horizon-mod-data/smarterf3/config.json` (beside the
+The settings page writes, and the mod reads, `horizon-mods/.horizon-mod-data/smartf3/config.json` (beside the
 game's `options.txt`, in the instance that plays the native build). Every key is optional; modules the file leaves out
 keep their defaults and come after the listed ones. An unknown key, module or value makes the mod step aside (F3
 shows the vanilla screen; the settings page shows the error with a button to read the file again and a reset) until
@@ -102,7 +102,7 @@ the file is fixed.
 
 | Key | Values |
 | --- | --- |
-| `enabled` | `true`: SmarterF3 draws F3. `false`: the vanilla screen |
+| `enabled` | `true`: SmartF3 draws F3. `false`: the vanilla screen |
 | `compact` | Compact layout |
 | `shadow` | Text shadow |
 | `background` | `"vanilla"` (ARGB `#90505050`), `"dark"` (`#A0000000`), `"none"` |
@@ -112,21 +112,21 @@ the file is fixed.
 ## Compatibility
 
 Horizon's native mods can use **hook points** (`game/native_hooks.rs`, `NATIVE_HOOKS_API`): functions kept stable from
-release to release. SmarterF3 uses them for everything they cover:
+release to release. SmartF3 uses them for everything they cover:
 
 - `native_mods`, `native_settings`, `native_settings_click`: the row in Options > Mods and the settings page, with
   the helpers `native_setting` / `native_set_setting` for the file and `native_on` for the row's off switch;
-- `native_command`: `/smarterf3` (answered with the `native_chat` helper).
+- `native_command`: `/smartf3` (answered with the `native_chat` helper).
 
 There is no hook point for the debug screen, so one game function is hooked directly and the mod is **pinned**:
 
 | Hook | Kind | Why it is not a hook point |
 | --- | --- | --- |
-| `Game::hud` | cancellable HEAD | SmarterF3's screen replaces the vanilla one. `native_hud` can't do it: it is drawn under menus, chat and toasts, isn't drawn under F1 while a menu is open, and nothing would stop the vanilla text from being drawn as well. The vanilla screen's own function, `debug_keys::Game::draw_debug_overlay`, can't be hooked: its body has macros (`format!`), which horizon-mixins refuses (`E_UNSUPPORTED_MACRO`). So the hook is on its caller `Game::hud` (six calls, no macros): **only while F3 is open** and SmarterF3 is on, it builds the HUD with the same calls in the same order (`hud_layers`, dialog, pack prompt, link prompt, the debug screen, the frame graph, the controller cursor) with SmarterF3's screen in place of `draw_debug_overlay`, so it is drawn where the vanilla screen is: over everything, menus included, at the debug GUI scale. Otherwise the game's own `hud` runs. |
+| `Game::hud` | cancellable HEAD | SmartF3's screen replaces the vanilla one. `native_hud` can't do it: it is drawn under menus, chat and toasts, isn't drawn under F1 while a menu is open, and nothing would stop the vanilla text from being drawn as well. The vanilla screen's own function, `debug_keys::Game::draw_debug_overlay`, can't be hooked: its body has macros (`format!`), which horizon-mixins refuses (`E_UNSUPPORTED_MACRO`). So the hook is on its caller `Game::hud` (six calls, no macros): **only while F3 is open** and SmartF3 is on, it builds the HUD with the same calls in the same order (`hud_layers`, dialog, pack prompt, link prompt, the debug screen, the frame graph, the controller cursor) with SmartF3's screen in place of `draw_debug_overlay`, so it is drawn where the vanilla screen is: over everything, menus included, at the debug GUI scale. Otherwise the game's own `hud` runs. |
 
 The adapter (`native.rs`) also reads the game's internals the vanilla screen reads (renderer and window info, the
 tick clock, chunks, light, the block registry, the crosshair hit tests), another reason it builds on one commit only.
-No `native_tick` hook: SmarterF3 is client-only, keeps no per-tick state, and checks Options > Mods' switch where it
+No `native_tick` hook: SmartF3 is client-only, keeps no per-tick state, and checks Options > Mods' switch where it
 acts (it only ever acts in the window's game, `native_window`).
 
 Pinned: Horizon `142388e1c136e622652ec7505af15d8ad195e041`, horizon-mixins `0d6b103c70633d8fd9443d8d0acd3aadaacedb06`,
@@ -136,10 +136,10 @@ modules, no conflict; neither of them hooks `Game::hud`).
 
 ## Build and try
 
-SmarterF3 is a source bundle; the launcher compiles it into a game of its own:
+SmartF3 is a source bundle; the launcher compiles it into a game of its own:
 
 ```sh
-horizon-launcher native-build C:\Users\degrando\projects\smarterf3 --version v0.2.97 --trust-native-code
+horizon-launcher native-build C:\Users\degrando\projects\smartf3 --version v0.2.97 --trust-native-code
 ```
 
 `--version` is the installed version whose game files the build reuses; the build compiles the pinned commit. To build
@@ -147,13 +147,13 @@ it with TreeFall and Mason, put the three bundles in one folder, one subfolder e
 
 ## Development
 
-`mixins/smarterf3/`:
+`mixins/smartf3/`:
 
 - `horizon-mixin.toml`: two support modules and five HEAD hooks (one pinned, four on hook points).
 - `runtime.rs`: everything that can be decided without the game (the modules and their lines, full and compact,
   the columns and where each line goes, colours, the file, the settings page's buttons and clicks, the command),
-  with unit tests. It is both this repository's Cargo library and the injected `crate::game::smarterf3` module.
-- `native.rs`: the adapter to the game (`crate::game::smarterf3_native`): reads a `Snapshot` and draws.
+  with unit tests. It is both this repository's Cargo library and the injected `crate::game::smartf3` module.
+- `native.rs`: the adapter to the game (`crate::game::smartf3_native`): reads a `Snapshot` and draws.
 - `hud.rs`, `command.rs`, `list.rs`, `settings.rs`, `click.rs`: the hook helpers.
 
 `tests/format.rs` declares the game-side files (never compiled here) so `cargo fmt` checks them too.
@@ -162,7 +162,7 @@ it with TreeFall and Mason, put the three bundles in one folder, one subfolder e
 cargo test
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
-python tools/pack_hnmod.py   # dist/smarterf3-0.1.0.hnmod
+python tools/pack_hnmod.py   # dist/smartf3-0.1.0.hnmod
 ```
 
 Written with [Claude Code](https://claude.com/claude-code).

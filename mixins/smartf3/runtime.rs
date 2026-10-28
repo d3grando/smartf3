@@ -1,15 +1,15 @@
-// SmarterF3's game-independent logic: the modules, what each one shows, the
+// SmartF3's game-independent logic: the modules, what each one shows, the
 // two columns and where each line goes, the configuration file, the settings
-// page and `/smarterf3`. Injected into the game as `crate::game::smarterf3`
+// page and `/smartf3`. Injected into the game as `crate::game::smartf3`
 // (see horizon-mixin.toml) and, unchanged, this repository's Cargo library,
 // so all of it is unit tested without the game. The adapter that reads the
 // game and draws is native.rs.
 
 use serde_json::{Map, Value, json};
 
-pub const ID: &str = "smarterf3";
+pub const ID: &str = "smartf3";
 pub const VERSION: &str = "0.1.0";
-pub const NAME: &str = "SmarterF3";
+pub const NAME: &str = "SmartF3";
 pub const DESCRIPTION: &str =
     "A tidier F3 debug screen: the same information in coloured modules you can hide and reorder.";
 /// The file in the mod's settings folder (`native_setting`).
@@ -266,7 +266,7 @@ pub struct ModuleConfig {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Config {
-    /// SmarterF3 draws F3; false leaves the vanilla debug screen.
+    /// SmartF3 draws F3; false leaves the vanilla debug screen.
     pub enabled: bool,
     /// Fewer, shorter lines.
     pub compact: bool,
@@ -1069,12 +1069,12 @@ pub fn click(loaded: &Loaded, selected: ModuleId, button: usize) -> Option<Effec
     Some(Effect::Save(next))
 }
 
-// ---------------------------------------------------------------- /smarterf3
+// ---------------------------------------------------------------- /smartf3
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
     Status,
-    /// SmarterF3 draws F3.
+    /// SmartF3 draws F3.
     On,
     /// The vanilla debug screen.
     Off,
@@ -1083,9 +1083,9 @@ pub enum Command {
     Reload,
 }
 
-pub const USAGE: &str = "Usage: /smarterf3 [status|on|off|toggle|compact|reload]";
+pub const USAGE: &str = "Usage: /smartf3 [status|on|off|toggle|compact|reload]";
 
-/// `smarterf3 ...` (the line without its slash): None when it is not ours,
+/// `smartf3 ...` (the line without its slash): None when it is not ours,
 /// Err with the usage when its argument is unknown.
 pub fn parse_command(command: &str) -> Option<Result<Command, String>> {
     let mut words = command.split_whitespace();
@@ -1104,15 +1104,15 @@ pub fn parse_command(command: &str) -> Option<Result<Command, String>> {
     Some(parsed)
 }
 
-/// What the screen is now, for `/smarterf3 status`.
+/// What the screen is now, for `/smartf3 status`.
 pub fn status(config: &Config) -> String {
     if config.enabled {
         format!(
-            "{NAME} draws the F3 screen ({} layout). /smarterf3 off for vanilla F3.",
+            "{NAME} draws the F3 screen ({} layout). /smartf3 off for vanilla F3.",
             if config.compact { "compact" } else { "full" }
         )
     } else {
-        format!("F3 shows the vanilla debug screen. /smarterf3 on for {NAME}.")
+        format!("F3 shows the vanilla debug screen. /smartf3 on for {NAME}.")
     }
 }
 
@@ -1484,7 +1484,7 @@ mod tests {
         let loaded: Loaded = Ok(Config::default());
         let page = labels(&loaded, ModuleId::Biome);
         assert_eq!(page.len(), 13);
-        assert_eq!(page[0], "Debug screen: SmarterF3");
+        assert_eq!(page[0], "Debug screen: SmartF3");
         assert_eq!(page[5], "Module 7/14: Biome (click for the next)");
         assert_eq!(page[7], "  Label colour: Dark Green");
         assert_eq!(page[10], "  Move up (7th of 9 in the left column)");
@@ -1547,15 +1547,12 @@ mod tests {
 
     #[test]
     fn commands_switch_between_the_screens() {
-        assert_eq!(parse_command("smarterf3"), Some(Ok(Command::Status)));
-        assert_eq!(parse_command("smarterf3  off"), Some(Ok(Command::Off)));
-        assert_eq!(parse_command("smarterf3 vanilla"), Some(Ok(Command::Off)));
-        assert_eq!(
-            parse_command("smarterf3 compact"),
-            Some(Ok(Command::Compact))
-        );
-        assert_eq!(parse_command("smarterf3 on now"), Some(Err(USAGE.into())));
-        assert_eq!(parse_command("smarterf3x"), None);
+        assert_eq!(parse_command("smartf3"), Some(Ok(Command::Status)));
+        assert_eq!(parse_command("smartf3  off"), Some(Ok(Command::Off)));
+        assert_eq!(parse_command("smartf3 vanilla"), Some(Ok(Command::Off)));
+        assert_eq!(parse_command("smartf3 compact"), Some(Ok(Command::Compact)));
+        assert_eq!(parse_command("smartf3 on now"), Some(Err(USAGE.into())));
+        assert_eq!(parse_command("smartf3x"), None);
         assert_eq!(parse_command("tp 0 0 0"), None);
         let config = Config::default();
         let (next, answer) = run_command(&config, Command::Toggle);
