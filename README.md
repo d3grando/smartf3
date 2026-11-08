@@ -129,10 +129,10 @@ tick clock, chunks, light, the block registry, the crosshair hit tests), another
 No `native_tick` hook: SmartF3 is client-only, keeps no per-tick state, and checks Options > Mods' switch where it
 acts (it only ever acts in the window's game, `native_window`).
 
-Pinned: Horizon `142388e1c136e622652ec7505af15d8ad195e041`, horizon-mixins `0d6b103c70633d8fd9443d8d0acd3aadaacedb06`,
-game 26.3, the same pins as TreeFall 0.3.0 and Mason 0.2.0, so the three build together into one game. Checked with
-horizon-mixins `plan` and `apply` on that commit, alone and together with TreeFall and Mason (21 injections, 14
-modules, no conflict; neither of them hooks `Game::hud`).
+Pinned: Horizon `6475f62f3c834b7489e1816bf47f47ea5eb2b879`, horizon-mixins `5a64af938ec86b00d53d16a408aabc0038fb3e57`,
+game 26.3 (Nightly 2026-11-04), the commit Mod Menu 0.3.3 and other registry mods pin, so a player's set builds
+on it. Checked with horizon-mixins `apply` and `cargo check` on that commit, together with TreeFall and ShulkerPeek
+re-pinned to it, and built into a game with the launcher's `native-build`.
 
 ## Build and try
 

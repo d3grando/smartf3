@@ -8,7 +8,7 @@
 use serde_json::{Map, Value, json};
 
 pub const ID: &str = "smartf3";
-pub const VERSION: &str = "0.1.0";
+pub const VERSION: &str = "0.1.1";
 pub const NAME: &str = "SmartF3";
 pub const DESCRIPTION: &str =
     "A tidier F3 debug screen: the same information in coloured modules you can hide and reorder.";
