@@ -1,4 +1,4 @@
-// SmartF3's adapter to the game (Horizon 142388e1c136e622652ec7505af15d8ad195e041,
+// SmartF3's adapter to the game (Horizon 6475f62f3c834b7489e1816bf47f47ea5eb2b879,
 // see horizon-mixin.toml). Injected as `crate::game::smartf3_native`: reads
 // what the debug screen shows from the game into a `Snapshot`, lets the
 // game-independent `crate::game::smartf3` (runtime.rs) arrange it, and draws
@@ -537,7 +537,24 @@ impl Game<'_> {
         if let Some((_, d)) = self.dragon_hit() {
             offer(d, "minecraft:ender_dragon".to_owned());
         }
-        if let Some((_, d)) = self.guest_hit() {
+        // The LAN guest under the crosshair (Horizon dropped `guest_hit`).
+        let guest = self.lan.as_ref().and_then(|host| {
+            let (eye, dir) = self.aim()?;
+            host.hub
+                .guests
+                .iter()
+                .filter(|g| host.hub.here(g) && g.loaded && !g.dead && !g.spectator())
+                .filter_map(|g| {
+                    super::ray_box(
+                        eye,
+                        dir,
+                        self.entity_reach,
+                        super::lan_mobs::guest_bounds(g),
+                    )
+                })
+                .min_by(|a, b| a.total_cmp(b))
+        });
+        if let Some(d) = guest {
             offer(d, "minecraft:player".to_owned());
         }
         let (distance, kind) = best?;

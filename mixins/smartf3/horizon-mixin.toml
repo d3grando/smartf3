@@ -1,6 +1,6 @@
 [mod]
 id = "smartf3"
-version = "0.1.0"
+version = "0.1.1"
 # No other mod we know of hooks the debug screen; same-site HEAD hooks would
 # run by priority, highest first, and the first that cancels skips the rest.
 priority = 100
@@ -11,7 +11,7 @@ priority = 100
 # is made for this one commit. Its other hooks use only hook points
 # (NATIVE_HOOKS_API 1).
 [compatibility]
-horizon_revision = "142388e1c136e622652ec7505af15d8ad195e041"
+horizon_revision = "6475f62f3c834b7489e1816bf47f47ea5eb2b879"
 
 [[module]]
 id = "runtime"
