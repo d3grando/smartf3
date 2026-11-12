@@ -1,4 +1,4 @@
-// SmartF3's adapter to the game (Horizon 142388e1c136e622652ec7505af15d8ad195e041,
+// SmartF3's adapter to the game (Horizon fdc87aecdbd116bf1e08adcd062fcbaea8c2e2ca,
 // see horizon-mixin.toml). Injected as `crate::game::smartf3_native`: reads
 // what the debug screen shows from the game into a `Snapshot`, lets the
 // game-independent `crate::game::smartf3` (runtime.rs) arrange it, and draws
@@ -516,7 +516,7 @@ impl Game<'_> {
                 best = Some((distance, kind));
             }
         };
-        if let Some((i, d)) = self.mob_hit() {
+        if let Some((i, d, _)) = self.mob_hit() {
             offer(d, self.mobs[i].kind.id.clone());
         }
         if let Some((_, d, _)) = self.armor_stand_hit() {
@@ -536,9 +536,6 @@ impl Game<'_> {
         }
         if let Some((_, d)) = self.dragon_hit() {
             offer(d, "minecraft:ender_dragon".to_owned());
-        }
-        if let Some((_, d)) = self.guest_hit() {
-            offer(d, "minecraft:player".to_owned());
         }
         let (distance, kind) = best?;
         self.before_block(distance).then_some(kind)
